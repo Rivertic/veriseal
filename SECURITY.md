@@ -4,7 +4,7 @@
 
 **Do not open a public issue.** If you discover a security vulnerability in
 veriseal, please report it privately via GitHub's
-[Security Advisories](https://github.com/Authentick/veriseal/security/advisories)
+[Security Advisories](https://github.com/Rivertic/veriseal/security/advisories)
 feature.
 
 Please include:
@@ -40,7 +40,7 @@ hostile:
 - It does **not** use `unsafe`.
 - The dependency tree is deliberately small (`clap`, `serde`, `serde_json`,
   `toml`, `sha2`, `anyhow`) and is audited weekly in CI via
-  [`cargo audit`](https://github.com/Authentick/veriseal/actions/workflows/security.yml).
+  [`cargo audit`](https://github.com/Rivertic/veriseal/actions/workflows/security.yml).
 
 ## Dependency Disclosures
 

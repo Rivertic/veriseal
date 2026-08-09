@@ -4,7 +4,7 @@ use crate::runner::{Check, Outcome};
 use serde_json::{json, Value};
 
 pub const SCHEMA: &str = "https://json.schemastore.org/sarif-2.1.0.json";
-pub const INFORMATION_URI: &str = "https://github.com/Authentick/veriseal";
+pub const INFORMATION_URI: &str = "https://github.com/Rivertic/veriseal";
 
 /// Render `verify` checks as a SARIF 2.1.0 report. Passed checks are omitted;
 /// failed checks become `error` results and errored checks `warning`, so a

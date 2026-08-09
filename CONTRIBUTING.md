@@ -40,7 +40,7 @@ This project follows the [Contributor Covenant Code of Conduct](https://www.cont
 ### 1. Fork & Clone
 
 ```bash
-git clone https://github.com/Authentick/veriseal.git
+git clone https://github.com/Rivertic/veriseal.git
 cd veriseal
 ```
 
@@ -161,7 +161,7 @@ cargo test --test e2e         # e2e only
 ### Opening the PR
 
 1. Push your branch to your fork.
-2. Open a PR against `Authentick/veriseal:main`.
+2. Open a PR against `Rivertic/veriseal:main`.
 3. Fill in the PR template (summary, motivation / linked issue, testing performed).
 4. Request a review — maintainers aim to respond within **48 hours**.
 

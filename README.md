@@ -2,9 +2,9 @@
 
 **Provenance for Soroban/WASM artifacts — prove deployed bytecode matches source.**
 
-![CI](https://github.com/Authentick/veriseal/actions/workflows/ci.yml/badge.svg)
-![Security](https://github.com/Authentick/veriseal/actions/workflows/security.yml/badge.svg)
-![Release](https://github.com/Authentick/veriseal/actions/workflows/release.yml/badge.svg)
+![CI](https://github.com/Rivertic/veriseal/actions/workflows/ci.yml/badge.svg)
+![Security](https://github.com/Rivertic/veriseal/actions/workflows/security.yml/badge.svg)
+![Release](https://github.com/Rivertic/veriseal/actions/workflows/release.yml/badge.svg)
 ![Rust](https://img.shields.io/badge/rust-1.85+-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
@@ -338,7 +338,7 @@ its release pipeline on provenance in one step:
 
 ```yaml
 - name: Verify sealed provenance
-  uses: Authentick/veriseal@v1
+  uses: Rivertic/veriseal@v1
   with:
     working-directory: contracts/escrow
     sarif-file: veriseal.sarif

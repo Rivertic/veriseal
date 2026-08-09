@@ -3,7 +3,7 @@ description: >-
   Prove that your Soroban/WASM contract artifacts match the sealed provenance
   record. Runs `veriseal verify` in CI and can upload the results to GitHub
   code scanning as SARIF.
-author: Authentick
+author: Rivertic
 branding:
   icon: 'shield'
   color: 'blue'

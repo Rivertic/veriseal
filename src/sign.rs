@@ -181,7 +181,7 @@ fn build_slsa_statement(provenance: &Provenance) -> Value {
         "predicateType": "https://slsa.dev/provenance/v1",
         "predicate": {
             "buildDefinition": {
-                "buildType": "https://authentick.dev/veriseal/build/v1",
+                "buildType": "https://rivertic.dev/veriseal/build/v1",
                 "externalParameters": {
                     "toolchain": provenance.toolchain,
                     "project": provenance.project
@@ -200,8 +200,8 @@ fn build_slsa_statement(provenance: &Provenance) -> Value {
                 })).collect::<Vec<_>>()
             },
             "runDetails": {
-                "builder": { "id": "https://github.com/Authentick/veriseal" },
-                "buildType": "https://authentick.dev/veriseal/build/v1",
+                "builder": { "id": "https://github.com/Rivertic/veriseal" },
+                "buildType": "https://rivertic.dev/veriseal/build/v1",
                 "metadata": {
                     "invocationId": invocation_id,
                     "startedOn": started,
