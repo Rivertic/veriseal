@@ -291,9 +291,9 @@ veriseal verify
 Veriseal — demo-contract verify
 
 PASSED  project :: name — manifest project 'demo-contract' matches sealed provenance
-PASSED  git :: commit — sealed commit 64a5a2289fd0 is reachable from HEAD cd1f5824f77e
+PASSED  git :: commit — HEAD matches sealed commit bd4351c0c65f
 PASSED  demo-contract :: wasm — sha256 matches sealed digest 1e87febffa91
-PASSED  demo-contract :: source — source tree matches sealed digest 622261596422
+PASSED  demo-contract :: source — source tree matches sealed digest 0eca80e9ce87
 
 4 checks: 4 passed, 0 failed, 0 errored
 ```

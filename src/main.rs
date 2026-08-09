@@ -2,11 +2,11 @@
 
 use anyhow::bail;
 use clap::{Parser, Subcommand, ValueEnum};
+use std::process::ExitCode;
 use veriseal::manifest::Manifest;
 use veriseal::provenance::{Provenance, PROVENANCE_FILENAME};
 use veriseal::sign::ATTESTATION_FILENAME;
 use veriseal::{onchain, report, runner, scaffold, sign};
-use std::process::ExitCode;
 
 #[derive(Parser)]
 #[command(

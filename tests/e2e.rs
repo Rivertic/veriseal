@@ -238,7 +238,11 @@ fn verify_emits_valid_sarif() {
     // corrupt the provenance so verify produces a finding
     let mut prov = provenance(tmp.path());
     prov["artifacts"][0]["wasm_sha256"] = "0".repeat(64).into();
-    fs::write(tmp.path().join("veriseal.provenance.json"), prov.to_string()).unwrap();
+    fs::write(
+        tmp.path().join("veriseal.provenance.json"),
+        prov.to_string(),
+    )
+    .unwrap();
 
     let ver = run(tmp.path(), &["verify", "--sarif", "out.sarif"]);
     assert_eq!(ver.status.code(), Some(1));
