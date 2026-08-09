@@ -1,22 +1,22 @@
 [package]
-name = "sorseal"
+name = "veriseal"
 version = "0.1.0"
 edition = "2021"
 description = "Provenance for Soroban/WASM artifacts — prove deployed bytecode matches source."
 license = "MIT"
-authors = ["BreachDirect"]
+authors = ["Authentick"]
 rust-version = "1.85"
-repository = "https://github.com/BreachDirect/sorseal"
+repository = "https://github.com/Authentick/veriseal"
 readme = "README.md"
 keywords = ["soroban", "stellar", "wasm", "provenance", "reproducible-builds"]
 categories = ["development-tools::build-utils", "command-line-utilities"]
 
 [lib]
-name = "sorseal"
+name = "veriseal"
 path = "src/lib.rs"
 
 [[bin]]
-name = "sorseal"
+name = "veriseal"
 path = "src/main.rs"
 
 [dependencies]

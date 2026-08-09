@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# End-to-end sorseal demo against a real Soroban network.
+# End-to-end veriseal demo against a real Soroban network.
 #
 # Demonstrates the full story: seal the build, deploy, upgrade twice, then
 # prove on-chain that (a) the current deployment is sealed and (b) the full
 # upgrade lineage — including the versions that were deployed WITHOUT a seal —
 # is visible and cross-checked against provenance.
 #
-# Prereqs: a built `sorseal` binary and the Stellar CLI (`stellar`, formerly
+# Prereqs: a built `veriseal` binary and the Stellar CLI (`stellar`, formerly
 # soroban-cli), plus the wasm32 target:
 #   rustup target add wasm32v1-none
 #   cargo install soroban-cli --version 27.1.0 --locked   # provides the `stellar` CLI
 #   cargo build --release --locked
 #
 # Env:
-#   SORSEAL_BIN   path to the sorseal binary        (default: sorseal)
+#   VERISEAL_BIN   path to the veriseal binary        (default: veriseal)
 #   STELLAR_BIN   path to the stellar CLI           (default: stellar)
 #   RPC_URL       Soroban RPC endpoint              (default: testnet)
 #   NETWORK_PASSPHRASE  network passphrase          (default: testnet)
@@ -22,19 +22,19 @@
 # Run from anywhere; it operates on examples/demo-contract.
 set -euo pipefail
 
-SORSEAL_BIN="${SORSEAL_BIN:-sorseal}"
+VERISEAL_BIN="${VERISEAL_BIN:-veriseal}"
 STELLAR_BIN="${STELLAR_BIN:-stellar}"
 RPC_URL="${RPC_URL:-https://soroban-testnet.stellar.org}"
 NETWORK_PASSPHRASE="${NETWORK_PASSPHRASE:-Test SDF Network ; September 2015}"
 CONTRACT_DIR="$(cd "$(dirname "$0")/.." && pwd)/examples/demo-contract"
 WASM="$CONTRACT_DIR/target/wasm32v1-none/release/demo_contract.wasm"
-KEY="sorseal-demo"
-CONTRACT_ALIAS="sorseal-demo-contract"
+KEY="veriseal-demo"
+CONTRACT_ALIAS="veriseal-demo-contract"
 
 log() { printf '\n\033[1;36m== %s\033[0m\n' "$*"; }
 fail() { printf '\n\033[1;31m!! %s\033[0m\n' "$*" >&2; exit 1; }
 
-command -v "$SORSEAL_BIN" >/dev/null || fail "$SORSEAL_BIN not found on PATH"
+command -v "$VERISEAL_BIN" >/dev/null || fail "$VERISEAL_BIN not found on PATH"
 command -v "$STELLAR_BIN" >/dev/null || fail "$STELLAR_BIN not found on PATH (cargo install soroban-cli)"
 
 cd "$CONTRACT_DIR"
@@ -46,10 +46,10 @@ cp "$LIB_SRC" /tmp/demo-lib.rs.orig
 # reference fixture (see README "Verify it yourself"), so restore it from git;
 # fall back to removing it for checkouts that predate the fixture.
 restore_provenance() {
-  if git -C "$CONTRACT_DIR" ls-files --error-unmatch sorseal.provenance.json >/dev/null 2>&1; then
-    git -C "$CONTRACT_DIR" checkout -- sorseal.provenance.json
+  if git -C "$CONTRACT_DIR" ls-files --error-unmatch veriseal.provenance.json >/dev/null 2>&1; then
+    git -C "$CONTRACT_DIR" checkout -- veriseal.provenance.json
   else
-    rm -f "$CONTRACT_DIR/sorseal.provenance.json"
+    rm -f "$CONTRACT_DIR/veriseal.provenance.json"
   fi
 }
 trap 'cp /tmp/demo-lib.rs.orig "$LIB_SRC"; restore_provenance' EXIT
@@ -66,7 +66,7 @@ fi
 
 log "Stage 1 — build + seal v1 (value = 1_000)"
 cargo build --locked --release --target wasm32v1-none
-"$SORSEAL_BIN" record
+"$VERISEAL_BIN" record
 
 log "Stage 2 — deploy v1"
 "$STELLAR_BIN" contract alias remove "$CONTRACT_ALIAS" >/dev/null 2>&1 || true
@@ -77,7 +77,7 @@ CONTRACT_ID="$("$STELLAR_BIN" contract alias show "$CONTRACT_ALIAS" --rpc-url "$
 log "Contract id: $CONTRACT_ID"
 
 log "Stage 3 — prove v1 is sealed on-chain"
-"$SORSEAL_BIN" onchain-verify --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
+"$VERISEAL_BIN" onchain-verify --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
 
 log "Stage 4 — upgrade to v2 (value = 2_000), deployed WITHOUT a seal"
 sed -i 's/        1_000/        2_000/' "$CONTRACT_DIR/src/lib.rs"
@@ -93,13 +93,13 @@ WASM_HASH="$("$STELLAR_BIN" contract upload --wasm "$WASM" --source-account "$KE
 
 log "Stage 6 — audit the lineage: v1 sealed, v2/v3 unsealed, current FAILED"
 set +e
-"$SORSEAL_BIN" onchain-audit --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
+"$VERISEAL_BIN" onchain-audit --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
 AUDIT_EXIT=$?
 set -e
 [ "$AUDIT_EXIT" -eq 1 ] || fail "expected exit 1 (unsealed current), got $AUDIT_EXIT"
 
 log "Stage 7 — seal v3 and re-audit: current PASSED"
-"$SORSEAL_BIN" record --allow-dirty
-"$SORSEAL_BIN" onchain-audit --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
+"$VERISEAL_BIN" record --allow-dirty
+"$VERISEAL_BIN" onchain-audit --contract-id "$CONTRACT_ID" --rpc "$RPC_URL"
 
 log "Done. Contract id: $CONTRACT_ID"

@@ -2,7 +2,7 @@
 # Note: Cargo.lock is intentionally committed — a sealed build must be
 # reproducible, which requires a locked dependency graph.
 target/
-sorseal.provenance.json
-sorseal.key
-sorseal.pub
-sorseal.sarif
+veriseal.provenance.json
+veriseal.key
+veriseal.pub
+veriseal.sarif

@@ -1,4 +1,4 @@
-//! `sorseal init` — scaffold a manifest, discovering contract crates when
+//! `veriseal init` — scaffold a manifest, discovering contract crates when
 //! possible from the surrounding Cargo project.
 
 use crate::manifest::{Artifact, Manifest, Project};

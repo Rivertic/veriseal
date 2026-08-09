@@ -490,7 +490,7 @@ fn collapse_noops(mut versions: Vec<VersionRecord>) -> Vec<VersionRecord> {
 
 /// Render the audit report for the console.
 pub fn render_audit(a: &AuditReport) -> String {
-    let mut lines = vec!["Sorseal — on-chain audit".to_string(), String::new()];
+    let mut lines = vec!["Veriseal — on-chain audit".to_string(), String::new()];
     lines.push(format!("contract    {}", a.contract_id));
     lines.push(format!("rpc         {}", a.rpc_url));
     lines.push(format!(
@@ -658,7 +658,7 @@ mod tests {
 
     fn provenance_with(wasm: &str) -> Provenance {
         serde_json::from_value(json!({
-            "format": "sorseal-provenance",
+            "format": "veriseal-provenance",
             "version": 1,
             "project": "demo",
             "toolchain": "stable",

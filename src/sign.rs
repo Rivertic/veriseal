@@ -10,9 +10,9 @@ use getrandom::SysRng;
 use serde_json::{json, Value};
 use std::path::Path;
 
-pub const PRIVATE_KEY_EXT: &str = "sorseal.key";
-pub const PUBLIC_KEY_EXT: &str = "sorseal.pub";
-pub const ATTESTATION_FILENAME: &str = "sorseal.attestation.json";
+pub const PRIVATE_KEY_EXT: &str = "veriseal.key";
+pub const PUBLIC_KEY_EXT: &str = "veriseal.pub";
+pub const ATTESTATION_FILENAME: &str = "veriseal.attestation.json";
 pub const DSSE_PAYLOAD_TYPE: &str = "application/vnd.in-toto+json";
 
 /// Generate an Ed25519 keypair and write the private key to `key_path`.
@@ -150,7 +150,7 @@ fn dsse_pae(payload_type: &str, payload_b64: &str) -> String {
 }
 
 /// Build an in-toto Statement v1 with a SLSA v1.0 provenance predicate from a
-/// sealed sorseal provenance record.
+/// sealed veriseal provenance record.
 fn build_slsa_statement(provenance: &Provenance) -> Value {
     let subjects: Vec<Value> = provenance
         .artifacts
@@ -181,7 +181,7 @@ fn build_slsa_statement(provenance: &Provenance) -> Value {
         "predicateType": "https://slsa.dev/provenance/v1",
         "predicate": {
             "buildDefinition": {
-                "buildType": "https://breachdirect.dev/sorseal/build/v1",
+                "buildType": "https://authentick.dev/veriseal/build/v1",
                 "externalParameters": {
                     "toolchain": provenance.toolchain,
                     "project": provenance.project
@@ -200,8 +200,8 @@ fn build_slsa_statement(provenance: &Provenance) -> Value {
                 })).collect::<Vec<_>>()
             },
             "runDetails": {
-                "builder": { "id": "https://github.com/BreachDirect/sorseal" },
-                "buildType": "https://breachdirect.dev/sorseal/build/v1",
+                "builder": { "id": "https://github.com/Authentick/veriseal" },
+                "buildType": "https://authentick.dev/veriseal/build/v1",
                 "metadata": {
                     "invocationId": invocation_id,
                     "startedOn": started,
@@ -301,7 +301,7 @@ mod tests {
     #[test]
     fn keygen_roundtrip_and_signature() {
         let dir = tempdir().unwrap();
-        let key_path = dir.path().join("test.sorseal.key");
+        let key_path = dir.path().join("test.veriseal.key");
         let pub_hex = keygen(&key_path).unwrap();
         assert_eq!(pub_hex.len(), 64);
 
@@ -315,12 +315,12 @@ mod tests {
     #[test]
     fn attest_sign_and_verify_roundtrip() {
         let dir = tempdir().unwrap();
-        let key_path = dir.path().join("test.sorseal.key");
+        let key_path = dir.path().join("test.veriseal.key");
         let pub_hex = keygen(&key_path).unwrap();
         let sk = load_signing_key(&key_path).unwrap();
 
         let prov = sample_provenance();
-        let out_path = dir.path().join("sorseal.attestation.json");
+        let out_path = dir.path().join("veriseal.attestation.json");
         attest(&sk, &prov, &out_path).unwrap();
 
         let envelope: Value =
@@ -336,11 +336,11 @@ mod tests {
     #[test]
     fn tampered_payload_fails_verification() {
         let dir = tempdir().unwrap();
-        let key_path = dir.path().join("test.sorseal.key");
+        let key_path = dir.path().join("test.veriseal.key");
         let pub_hex = keygen(&key_path).unwrap();
         let sk = load_signing_key(&key_path).unwrap();
         let prov = sample_provenance();
-        let out_path = dir.path().join("sorseal.attestation.json");
+        let out_path = dir.path().join("veriseal.attestation.json");
         attest(&sk, &prov, &out_path).unwrap();
 
         let mut envelope: Value =

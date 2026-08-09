@@ -1,19 +1,19 @@
-//! sorseal CLI — `sorseal init|record|verify|report`.
+//! veriseal CLI — `veriseal init|record|verify|report`.
 
 use anyhow::bail;
 use clap::{Parser, Subcommand, ValueEnum};
-use sorseal::manifest::Manifest;
-use sorseal::provenance::{Provenance, PROVENANCE_FILENAME};
-use sorseal::sign::ATTESTATION_FILENAME;
-use sorseal::{onchain, report, runner, scaffold, sign};
+use veriseal::manifest::Manifest;
+use veriseal::provenance::{Provenance, PROVENANCE_FILENAME};
+use veriseal::sign::ATTESTATION_FILENAME;
+use veriseal::{onchain, report, runner, scaffold, sign};
 use std::process::ExitCode;
 
 #[derive(Parser)]
 #[command(
-    name = "sorseal",
+    name = "veriseal",
     version,
     about = "Provenance for Soroban/WASM artifacts — prove deployed bytecode matches source.",
-    long_about = "sorseal seals the build: it records a manifest of SHA-256 digests for your \
+    long_about = "veriseal seals the build: it records a manifest of SHA-256 digests for your \
                   contract artifacts (WASM + source tree + toolchain + git commit), then \
                   verifies at any time that a clean rebuild reproduces those exact digests."
 )]
@@ -24,28 +24,28 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Scaffold a sorseal.toml manifest
+    /// Scaffold a veriseal.toml manifest
     Init {
         /// Project name (defaults to the crate/package name)
         #[arg(long)]
         project: Option<String>,
-        /// Overwrite an existing sorseal.toml
+        /// Overwrite an existing veriseal.toml
         #[arg(long)]
         force: bool,
     },
-    /// Build artifacts and write sorseal.provenance.json
+    /// Build artifacts and write veriseal.provenance.json
     Record {
         /// Allow recording from a dirty working tree
         #[arg(long)]
         allow_dirty: bool,
         /// Manifest file
-        #[arg(long, default_value = sorseal::manifest::MANIFEST_FILENAME)]
+        #[arg(long, default_value = veriseal::manifest::MANIFEST_FILENAME)]
         manifest: String,
     },
     /// Rebuild artifacts and verify them against the sealed provenance
     Verify {
         /// Manifest file
-        #[arg(long, default_value = sorseal::manifest::MANIFEST_FILENAME)]
+        #[arg(long, default_value = veriseal::manifest::MANIFEST_FILENAME)]
         manifest: String,
         /// Provenance file
         #[arg(long, default_value = PROVENANCE_FILENAME)]
@@ -66,7 +66,7 @@ enum Command {
     /// Generate an Ed25519 keypair for signing attestations
     Keygen {
         /// Path to write the private key
-        #[arg(long, default_value = sorseal::sign::PRIVATE_KEY_EXT)]
+        #[arg(long, default_value = veriseal::sign::PRIVATE_KEY_EXT)]
         key: String,
         /// Path to write the public key
         #[arg(long)]
@@ -93,7 +93,7 @@ enum Command {
         #[arg(long, default_value = ATTESTATION_FILENAME)]
         attestation: String,
         /// Provenance file to cross-check subjects against (defaults to
-        /// sorseal.provenance.json; the check is skipped when it is absent)
+        /// veriseal.provenance.json; the check is skipped when it is absent)
         #[arg(long, default_value = PROVENANCE_FILENAME)]
         provenance: String,
     },
@@ -127,7 +127,7 @@ enum Command {
         #[arg(long)]
         end_ledger: Option<u32>,
         /// Provenance file to cross-check versions against (defaults to
-        /// sorseal.provenance.json in the current directory when present)
+        /// veriseal.provenance.json in the current directory when present)
         #[arg(long)]
         provenance: Option<String>,
     },
@@ -144,7 +144,7 @@ fn main() -> ExitCode {
     match run(Cli::parse()) {
         Ok(code) => ExitCode::from(code),
         Err(e) => {
-            eprintln!("sorseal: error: {e:#}");
+            eprintln!("veriseal: error: {e:#}");
             ExitCode::from(2)
         }
     }
@@ -156,11 +156,11 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
             let cwd = std::env::current_dir()?;
             let manifest = scaffold::scaffold_manifest(&cwd, project, force)?;
             let toml_text = toml::to_string(&manifest)?;
-            std::fs::write(cwd.join(sorseal::manifest::MANIFEST_FILENAME), toml_text)?;
+            std::fs::write(cwd.join(veriseal::manifest::MANIFEST_FILENAME), toml_text)?;
             let n = manifest.artifacts.len();
             println!(
                 "Wrote {} with {n} artifact(s).",
-                sorseal::manifest::MANIFEST_FILENAME
+                veriseal::manifest::MANIFEST_FILENAME
             );
             if manifest.is_placeholder() {
                 println!(
@@ -198,7 +198,7 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
             if let Some(path) = sarif {
                 std::fs::write(
                     cwd.join(&path),
-                    sorseal::sarif::render_sarif(&m.project.name, &checks),
+                    veriseal::sarif::render_sarif(&m.project.name, &checks),
                 )
                 .map_err(|e| anyhow::anyhow!("failed to write SARIF to {path}: {e}"))?;
                 println!();
@@ -320,13 +320,13 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
         } => {
             let cwd = std::env::current_dir()?;
             let rpc_url = rpc.unwrap_or_else(|| onchain::MAINNET_RPC.to_string());
-            let contract_hex = sorseal::onchain::normalize_contract_id(&contract_id)?;
+            let contract_hex = veriseal::onchain::normalize_contract_id(&contract_id)?;
 
             // Provenance is optional for an audit: without it we still
             // reconstruct the full lineage, just without the cross-check.
             let prov_path = cwd.join(provenance.unwrap_or_else(|| PROVENANCE_FILENAME.to_string()));
             let prov = if prov_path.exists() {
-                Some(sorseal::provenance::Provenance::load(&prov_path)?)
+                Some(veriseal::provenance::Provenance::load(&prov_path)?)
             } else {
                 println!(
                     "no provenance file at {} — auditing history only",
@@ -335,7 +335,7 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
                 None
             };
 
-            let (oldest, latest) = sorseal::audit::rpc_ledger_window(&rpc_url)?;
+            let (oldest, latest) = veriseal::audit::rpc_ledger_window(&rpc_url)?;
             let start = start_ledger.unwrap_or(oldest);
             let start = if start < oldest {
                 println!(
@@ -357,9 +357,9 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
             println!(
                 "auditing contract {contract_hex} against {rpc_url} (ledgers {start}..{end}) ..."
             );
-            let events = sorseal::audit::scan_upgrade_events(&rpc_url, start, end, &contract_hex)?;
+            let events = veriseal::audit::scan_upgrade_events(&rpc_url, start, end, &contract_hex)?;
             let current = onchain::fetch_deployed_wasm_hash(&rpc_url, &contract_id)?;
-            let report = sorseal::audit::build_audit(
+            let report = veriseal::audit::build_audit(
                 &contract_hex,
                 events,
                 current,
@@ -367,7 +367,7 @@ fn run(cli: Cli) -> anyhow::Result<u8> {
                 &rpc_url,
                 (start, end),
             );
-            println!("{}", sorseal::audit::render_audit(&report));
+            println!("{}", veriseal::audit::render_audit(&report));
             let fail = report.provenance_supplied && !report.current_attested;
             Ok(if fail { 1 } else { 0 })
         }

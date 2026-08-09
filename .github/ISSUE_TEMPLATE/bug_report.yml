@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a bug in sorseal
+description: Report a bug in veriseal
 title: "[bug]: "
 labels: [bug, triage]
 body:
@@ -10,7 +10,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: sorseal version
+      label: veriseal version
       description: Commit hash, tag, or crate version
       placeholder: "main@abc1234 or v0.1.0"
     validations:
@@ -27,10 +27,10 @@ body:
     id: repro
     attributes:
       label: Steps to reproduce
-      description: Minimal `sorseal.toml` or fixture that triggers the bug, plus the command you ran
+      description: Minimal `veriseal.toml` or fixture that triggers the bug, plus the command you ran
       placeholder: |
-        `sorseal record`
-        `sorseal verify`
+        `veriseal record`
+        `veriseal verify`
         ...
     validations:
       required: true

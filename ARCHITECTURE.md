@@ -1,21 +1,21 @@
-# sorseal — Architecture
+# veriseal — Architecture
 
 ## Overview
 
-sorseal is a single Rust crate (library + thin CLI binary). It is deliberately
+veriseal is a single Rust crate (library + thin CLI binary). It is deliberately
 small and offline: every digest is computed locally, and the only subprocesses
 it spawns are the user's `build_command` (via `sh -c`) and read-only `git`
 queries.
 
 ```
-sorseal init|record|verify|report|keygen|sign|verify-attestation|onchain-verify|onchain-audit
+veriseal init|record|verify|report|keygen|sign|verify-attestation|onchain-verify|onchain-audit
         │
         ├─ src/main.rs     clap CLI, command dispatch, exit codes
         ├─ src/lib.rs      module root
-        ├─ src/scaffold.rs sorseal.toml generation (cdylib discovery)
-        ├─ src/manifest.rs sorseal.toml types + validation
+        ├─ src/scaffold.rs veriseal.toml generation (cdylib discovery)
+        ├─ src/manifest.rs veriseal.toml types + validation
         ├─ src/digest.rs   SHA-256 for files and directory trees
-        ├─ src/provenance.rs  sorseal.provenance.json types + load/save
+        ├─ src/provenance.rs  veriseal.provenance.json types + load/save
         ├─ src/runner.rs   record + verify orchestration
         ├─ src/report.rs   console / JSON / Markdown rendering
         ├─ src/sarif.rs    SARIF 2.1.0 rendering of verify results
@@ -30,16 +30,16 @@ sorseal init|record|verify|report|keygen|sign|verify-attestation|onchain-verify|
 
 ### record
 
-1. Read and validate `sorseal.toml`.
+1. Read and validate `veriseal.toml`.
 2. Capture git state; refuse to seal a dirty tree unless `--allow-dirty`.
 3. For each artifact: run `build_command`, hash the produced WASM, hash the
    `source_root` tree, capture toolchain + timestamp.
-4. Write `sorseal.provenance.json` (pretty-printed, `format = "sorseal-provenance"`,
+4. Write `veriseal.provenance.json` (pretty-printed, `format = "veriseal-provenance"`,
    `version = 1`).
 
 ### verify
 
-1. Read `sorseal.toml` and the provenance file.
+1. Read `veriseal.toml` and the provenance file.
 2. Check project name consistency.
 3. If the seal captured git state, require the sealed commit to be reachable
    from (or equal to) current `HEAD`.
@@ -53,8 +53,8 @@ sorseal init|record|verify|report|keygen|sign|verify-attestation|onchain-verify|
 
 ### keygen / sign / verify-attestation
 
-1. `keygen` writes an Ed25519 private key (`sorseal.key`) and derived public
-   key (`sorseal.pub`), both lowercase hex, 0600-permissioned.
+1. `keygen` writes an Ed25519 private key (`veriseal.key`) and derived public
+   key (`veriseal.pub`), both lowercase hex, 0600-permissioned.
 2. `sign` builds an **in-toto Statement** (subject = provenance wasm digest,
    predicateType = `https://slsa.dev/provenance/v1`) wrapped in a **DSSE**
    envelope with an Ed25519 signature over the DSSE pre-authentication
@@ -107,11 +107,11 @@ The XDR decoder is hand-rolled like the `onchain-verify` path, sharing the
 - **Tree digest**: depth-first walk collecting relative paths; paths sorted
   lexicographically before hashing so the digest is order-independent. Each
   entry is hashed as `relative-path\n<bytes>\n`.
-- **Exclusions**: `.git/`, `target/`, and sorseal's own generated outputs — the
-  provenance file, the signed attestation, the key files (`sorseal.key`,
-  `sorseal.pub`), and any `.sarif` report (so a seal never hashes its own
+- **Exclusions**: `.git/`, `target/`, and veriseal's own generated outputs — the
+  provenance file, the signed attestation, the key files (`veriseal.key`,
+  `veriseal.pub`), and any `.sarif` report (so a seal never hashes its own
   previous value and `record -> sign -> verify` stays reproducible). The
-  manifest `sorseal.toml` *is* included — it is part of the build configuration
+  manifest `veriseal.toml` *is* included — it is part of the build configuration
   and belongs in the source fingerprint.
 
 ## Reproducibility

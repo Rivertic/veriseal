@@ -1,11 +1,11 @@
-//! `sorseal.provenance.json` — the sealed record of what was built and hashed.
+//! `veriseal.provenance.json` — the sealed record of what was built and hashed.
 
 use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-pub const PROVENANCE_FILENAME: &str = "sorseal.provenance.json";
-pub const FORMAT: &str = "sorseal-provenance";
+pub const PROVENANCE_FILENAME: &str = "veriseal.provenance.json";
+pub const FORMAT: &str = "veriseal-provenance";
 pub const VERSION: u32 = 1;
 
 /// Source-control state captured at seal time. `present: false` means the

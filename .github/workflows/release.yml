@@ -21,7 +21,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            target/release/sorseal \
+            target/release/veriseal \
             --repo "$GITHUB_REPOSITORY" \
-            --title "sorseal $GITHUB_REF_NAME" \
+            --title "veriseal $GITHUB_REF_NAME" \
             --notes "Built from \`$GITHUB_SHA\` with \`cargo build --release --locked\`."

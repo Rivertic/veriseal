@@ -32,15 +32,15 @@ pub fn file_sha256(path: &Path) -> Result<String, anyhow::Error> {
 /// Directory names always excluded from tree digests.
 const SKIP_DIRS: [&str; 2] = [".git", "target"];
 
-/// sorseal-generated output files always excluded from tree digests, exactly
+/// veriseal-generated output files always excluded from tree digests, exactly
 /// like the provenance file: a seal must never depend on its own outputs. This
 /// keeps the documented `record -> sign -> verify` flow reproducible — the
 /// attestation, keys, and SARIF report live in the tree but are not source.
 const SKIP_FILES: [&str; 4] = [
     crate::provenance::PROVENANCE_FILENAME,
     crate::sign::ATTESTATION_FILENAME,
-    "sorseal.key",
-    "sorseal.pub",
+    "veriseal.key",
+    "veriseal.pub",
 ];
 
 /// Any SARIF report is a generated output regardless of the `--sarif` filename.
@@ -50,7 +50,7 @@ const SARIF_EXTENSION: &str = ".sarif";
 ///
 /// Traversal is depth-first and paths are sorted before hashing, so the digest
 /// depends only on content, never on filesystem iteration order. Generated
-/// sorseal outputs are excluded so a record never depends on a previous record.
+/// veriseal outputs are excluded so a record never depends on a previous record.
 pub fn tree_sha256(root: &Path) -> Result<String, anyhow::Error> {
     let mut files: Vec<String> = Vec::new();
     collect(root, root, &mut files)?;
@@ -123,10 +123,10 @@ mod tests {
         // change the source fingerprint (or `record -> sign -> verify` would
         // spuriously fail).
         fs::write(tmp.path().join(crate::sign::ATTESTATION_FILENAME), "{}").unwrap();
-        fs::write(tmp.path().join("sorseal.sarif"), "{}").unwrap();
+        fs::write(tmp.path().join("veriseal.sarif"), "{}").unwrap();
         fs::write(tmp.path().join("custom.sarif"), "{}").unwrap();
-        fs::write(tmp.path().join("sorseal.key"), "k").unwrap();
-        fs::write(tmp.path().join("sorseal.pub"), "p").unwrap();
+        fs::write(tmp.path().join("veriseal.key"), "k").unwrap();
+        fs::write(tmp.path().join("veriseal.pub"), "p").unwrap();
 
         let after = tree_sha256(tmp.path()).unwrap();
         assert_eq!(before, after);

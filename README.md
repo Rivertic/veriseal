@@ -1,21 +1,21 @@
-# sorseal
+# veriseal
 
 **Provenance for Soroban/WASM artifacts — prove deployed bytecode matches source.**
 
-![CI](https://github.com/BreachDirect/sorseal/actions/workflows/ci.yml/badge.svg)
-![Security](https://github.com/BreachDirect/sorseal/actions/workflows/security.yml/badge.svg)
-![Release](https://github.com/BreachDirect/sorseal/actions/workflows/release.yml/badge.svg)
+![CI](https://github.com/Authentick/veriseal/actions/workflows/ci.yml/badge.svg)
+![Security](https://github.com/Authentick/veriseal/actions/workflows/security.yml/badge.svg)
+![Release](https://github.com/Authentick/veriseal/actions/workflows/release.yml/badge.svg)
 ![Rust](https://img.shields.io/badge/rust-1.85+-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 When a Stellar contract goes live on mainnet, can you *prove* the deployed WASM
-was built from the exact source in your repo? sorseal closes that gap. It
+was built from the exact source in your repo? veriseal closes that gap. It
 **seals the build**: it records a manifest of SHA-256 digests for your contract
 artifacts — WASM + source tree + toolchain + git commit — then **verifies** at
 any time that a clean rebuild reproduces those exact digests.
 
 It is a fully **standalone** tool: it works on any Rust/Soroban project and has
-no dependency on other tools in the Stellar Wave toolchain.
+no dependency on other tools in the Stellar toolchain.
 
 ## Why
 
@@ -24,9 +24,9 @@ no dependency on other tools in the Stellar Wave toolchain.
   output, host-dependent codegen) before it ships.
 - **Supply-chain audit trail.** The committed provenance file is a machine-
   readable answer to "what source, toolchain, and commit produced this bytecode?"
-- **CI-friendly.** `sorseal verify` exits non-zero on any mismatch — drop it into
+- **CI-friendly.** `veriseal verify` exits non-zero on any mismatch — drop it into
   a release pipeline to gate deploys on reproducible, source-matching bytecode.
-- **Reusable GitHub Action.** A composite action wraps `sorseal verify` with
+- **Reusable GitHub Action.** A composite action wraps `veriseal verify` with
   SARIF output for GitHub code scanning, so the gate is one `uses:` away.
 - **Signed supply-chain records.** Attestations are signed with Ed25519 as
   in-toto Statements (SLSA v1.0 predicate, DSSE envelope) — a public key is all
@@ -41,22 +41,22 @@ no dependency on other tools in the Stellar Wave toolchain.
 
 ```bash
 # 1. Scaffold a manifest (auto-discovers cdylib contract crates in the Cargo workspace)
-sorseal init
+veriseal init
 
-# 2. Build and seal the digests into sorseal.provenance.json
-sorseal record
+# 2. Build and seal the digests into veriseal.provenance.json
+veriseal record
 
 # 3. Commit the provenance alongside your release
-git add sorseal.provenance.json && git commit -m "release: seal contract builds"
+git add veriseal.provenance.json && git commit -m "release: seal contract builds"
 
 # 4. Any time later: rebuild from a clean tree and prove it matches
-sorseal verify
+veriseal verify
 ```
 
 `verify` rebuilds each artifact from source and compares:
 
 ```
-Sorseal — echo verify
+Veriseal — echo verify
 
 PASSED  project :: name — manifest project 'echo' matches sealed provenance
 PASSED  git :: commit — sealed commit 46b5abe0a814 is reachable from HEAD 4c5a699b4af2
@@ -71,7 +71,7 @@ config error.
 
 ## How it works
 
-A `sorseal.toml` declares which artifacts to build and hash:
+A `veriseal.toml` declares which artifacts to build and hash:
 
 ```toml
 [project]
@@ -89,7 +89,7 @@ source_root = "."
 - **`wasm_sha256`** — SHA-256 of the built artifact (e.g. the contract WASM)
 - **`source_sha256`** — SHA-256 of the source tree (`source_root`), keyed on
   relative path + file bytes, sorted for determinism, excluding `.git/`,
-  `target/`, and sorseal's own generated outputs (the provenance file, signed
+  `target/`, and veriseal's own generated outputs (the provenance file, signed
   attestation, key files, and any `.sarif` report) — so a seal never depends on
   its own outputs
 - **toolchain** — `rustc --version` of the compiler used
@@ -111,18 +111,18 @@ careless edit can't silently diverge the source from what was shipped.
 ## Commands
 
 ```
-sorseal init                    Scaffold a sorseal.toml manifest
-sorseal record [--allow-dirty]  Build artifacts and write sorseal.provenance.json
-sorseal verify [--sarif FILE]   Rebuild and verify against the sealed provenance
-sorseal report [--format console|json|markdown]
+veriseal init                    Scaffold a veriseal.toml manifest
+veriseal record [--allow-dirty]  Build artifacts and write veriseal.provenance.json
+veriseal verify [--sarif FILE]   Rebuild and verify against the sealed provenance
+veriseal report [--format console|json|markdown]
                                 Render the provenance as a deliverable report
-sorseal keygen                  Generate an Ed25519 keypair for signing attestations
-sorseal sign --key KEY          Sign the provenance as an in-toto/SLSA attestation
-sorseal verify-attestation --public-key KEY
+veriseal keygen                  Generate an Ed25519 keypair for signing attestations
+veriseal sign --key KEY          Sign the provenance as an in-toto/SLSA attestation
+veriseal verify-attestation --public-key KEY
                                 Verify an attestation signature (and subjects)
-sorseal onchain-verify --contract-id C...
+veriseal onchain-verify --contract-id C...
                                 Compare the deployed on-chain wasm hash to provenance
-sorseal onchain-audit --contract-id C... [--rpc URL] [--start-ledger L] [--end-ledger L] [--provenance FILE]
+veriseal onchain-audit --contract-id C... [--rpc URL] [--start-ledger L] [--end-ledger L] [--provenance FILE]
                                 Reconstruct a contract's upgrade lineage from ledger events
                                 and cross-check each version against sealed provenance
 ```
@@ -145,22 +145,22 @@ was sealed under a key the release authority controls.
 
 ```bash
 # Generate a keypair (private key stays local; share only the public key)
-sorseal keygen --key release.key --public-key release.pub
+veriseal keygen --key release.key --public-key release.pub
 
-# After `sorseal record`, sign the provenance:
-sorseal sign --key release.key
+# After `veriseal record`, sign the provenance:
+veriseal sign --key release.key
 
 # A verifier with only the public key can check the signature:
-sorseal verify-attestation --public-key release.pub
+veriseal verify-attestation --public-key release.pub
 # PASSED  attestation :: signature — Ed25519 signature valid for release.pub
-# PASSED  attestation :: subjects — subject digests match sorseal.provenance.json
+# PASSED  attestation :: subjects — subject digests match veriseal.provenance.json
 ```
 
 Attestations are written as [DSSE envelopes](https://github.com/secure-systems-lab/dsse)
 wrapping an [in-toto Statement](https://github.com/in-toto/attestation) with an
 SLSA v1.0 predicate, so they are interoperable with standard supply-chain
 tooling. `verify-attestation` exits non-zero on a bad signature or — when a
-provenance file is present (defaults to `sorseal.provenance.json`) — on any
+provenance file is present (defaults to `veriseal.provenance.json`) — on any
 subject mismatch; pass `--provenance` to point at another file, or a missing
 file skips the cross-check.
 
@@ -172,7 +172,7 @@ hash sealed in the provenance:
 
 ```bash
 # Mainnet (default) or testnet, by C... strkey or 64-char hex:
-sorseal onchain-verify --contract-id C... --rpc https://soroban-testnet.stellar.org
+veriseal onchain-verify --contract-id C... --rpc https://soroban-testnet.stellar.org
 
 # PASSED  contract :: wasm hash — deployed bytecode matches sealed provenance
 #         deployed sha256 ccedd7ac...e430
@@ -193,11 +193,11 @@ ledger, and cross-checks every deployed version against the sealed provenance.
 
 ```bash
 # Defaults to mainnet; point --rpc at any Soroban RPC node (e.g. testnet)
-sorseal onchain-audit --contract-id C... --rpc https://soroban-testnet.stellar.org
+veriseal onchain-audit --contract-id C... --rpc https://soroban-testnet.stellar.org
 ```
 
 ```
-Sorseal — on-chain audit
+Veriseal — on-chain audit
 
 contract    2b8fdc2b74100c53c4854961c7a9c858a017d12e25ca0e20ad78d548dc262847
 rpc         https://soroban-testnet.stellar.org
@@ -230,7 +230,7 @@ How it works:
   gap (e.g. an upgrade that fell outside the retention window) you should
   investigate.
 - **Attestation cross-check.** Each version's wasm hash is matched against the
-  `wasm_sha256` digests in `sorseal.provenance.json` (auto-loaded, or
+  `wasm_sha256` digests in `veriseal.provenance.json` (auto-loaded, or
   `--provenance`). Versions with a matching sealed artifact are `sealed`;
   anything else produces a warning.
 - **Exit codes.** `0` if the current deployment is sealed by provenance, `1`
@@ -245,15 +245,15 @@ a known deployment window.
 ## Verify it yourself
 
 A reference contract is deployed on Stellar **testnet**, and its sealed
-provenance is committed in `examples/demo-contract/sorseal.provenance.json`.
+provenance is committed in `examples/demo-contract/veriseal.provenance.json`.
 Clone the repo, drop into that directory, and check it — the on-chain checks
-need nothing beyond the `sorseal` binary and network access.
+need nothing beyond the `veriseal` binary and network access.
 
 ```bash
 cd examples/demo-contract
 
 # (a) On-chain: does the deployed bytecode match the sealed provenance?
-sorseal onchain-verify \
+veriseal onchain-verify \
   --contract-id CCHOSAZP7YKQOIA2UCWJA534PT2ZR7P2UU4JK5NRFLWQXJMMSHLLWKM2 \
   --rpc https://soroban-testnet.stellar.org
 ```
@@ -266,7 +266,7 @@ PASSED  contract :: wasm hash — deployed bytecode matches sealed provenance
 
 ```bash
 # (b) Audit the full upgrade lineage: is the current deployment sealed?
-sorseal onchain-audit \
+veriseal onchain-audit \
   --contract-id CCHOSAZP7YKQOIA2UCWJA534PT2ZR7P2UU4JK5NRFLWQXJMMSHLLWKM2 \
   --rpc https://soroban-testnet.stellar.org
 ```
@@ -278,17 +278,17 @@ PASSED   current deployment is sealed by provenance
 You can also view the contract in the Stellar Lab:
 <https://lab.stellar.org/r/testnet/contract/CCHOSAZP7YKQOIA2UCWJA534PT2ZR7P2UU4JK5NRFLWQXJMMSHLLWKM2>
 
-Offline, `sorseal verify` rebuilds the wasm from source and re-checks the git
+Offline, `veriseal verify` rebuilds the wasm from source and re-checks the git
 commit, wasm, and source-tree digests against the same seal (needs the
 `wasm32v1-none` target; byte-identical rebuilds use the toolchain recorded in
 the provenance — `rustc 1.95.0` here):
 
 ```bash
-sorseal verify
+veriseal verify
 ```
 
 ```
-Sorseal — demo-contract verify
+Veriseal — demo-contract verify
 
 PASSED  project :: name — manifest project 'demo-contract' matches sealed provenance
 PASSED  git :: commit — sealed commit 64a5a2289fd0 is reachable from HEAD cd1f5824f77e
@@ -313,17 +313,17 @@ whole story against testnet:
 ```bash
 rustup target add wasm32v1-none
 cargo install soroban-cli --version 27.1.0 --locked   # provides the `stellar` CLI
-cargo build --release --locked                         # build the sorseal binary
+cargo build --release --locked                         # build the veriseal binary
 scripts/demo.sh                                        # seal -> deploy -> 2 upgrades -> audit
 ```
 
 The script:
 
-1. **Seals v1** with `sorseal record`, **deploys** it, and proves it on-chain
-   with `sorseal onchain-verify`.
+1. **Seals v1** with `veriseal record`, **deploys** it, and proves it on-chain
+   with `veriseal onchain-verify`.
 2. **Upgrades twice without re-sealing** — the unsealed releases a real team
    would want to catch.
-3. **Audits**: `sorseal onchain-audit` reconstructs the full lineage and exits
+3. **Audits**: `veriseal onchain-audit` reconstructs the full lineage and exits
    `1` because the current deployment (v3) has no sealed provenance.
 4. **Seals v3** and re-audits — the same command now exits `0` with the current
    deployment sealed, while the earlier unsealed versions are still flagged.
@@ -333,15 +333,15 @@ or lets the script generate and friendbot-fund one automatically.
 
 ## GitHub Action
 
-A reusable composite action wraps `sorseal verify` so any repository can gate
+A reusable composite action wraps `veriseal verify` so any repository can gate
 its release pipeline on provenance in one step:
 
 ```yaml
 - name: Verify sealed provenance
-  uses: BreachDirect/sorseal@v1
+  uses: Authentick/veriseal@v1
   with:
     working-directory: contracts/escrow
-    sarif-file: sorseal.sarif
+    sarif-file: veriseal.sarif
 ```
 
 - Inputs: `working-directory`, `manifest`, `provenance`, `sarif-file`, `toolchain`,
@@ -366,11 +366,12 @@ on-chain upgrade-lineage audits) are shipped. Planned follow-ups — CI
 provenance signing from OIDC identities, multi-signer rotation, and a
 verification API — are tracked as issues in this repo.
 
-## Wave alignment
+## Ecosystem fit
 
-Built for **Stellar Wave 8** as a standalone, reusable open-source dependency —
-not tied to any single org's private codebase — so any Wave-funded backend can
-adopt it to prove that deployed contracts match their source.
+Built as a standalone, reusable open-source dependency for the Soroban/Stellar
+ecosystem — not tied to any single org's private codebase. Any Stellar team
+shipping Soroban contracts can adopt it to prove that deployed contracts match
+their source, whether they deploy to testnet or mainnet.
 
 ## License
 

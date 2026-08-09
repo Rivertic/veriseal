@@ -66,16 +66,16 @@ jobs:
         run: cargo build --release --locked
       - name: Smoke — CLI boots, scaffolds, and seals+verifies the fixture
         run: |
-          ./target/release/sorseal --version
+          ./target/release/veriseal --version
           tmpdir=$(mktemp -d)
           cd "$tmpdir"
-          "$GITHUB_WORKSPACE/target/release/sorseal" init --project demo
-          test -f sorseal.toml
+          "$GITHUB_WORKSPACE/target/release/veriseal" init --project demo
+          test -f veriseal.toml
           cp -r "$GITHUB_WORKSPACE/tests/fixtures/echo/." "$tmpdir/echo"
           cd "$tmpdir/echo"
-          "$GITHUB_WORKSPACE/target/release/sorseal" record
+          "$GITHUB_WORKSPACE/target/release/veriseal" record
           rm -rf target
-          "$GITHUB_WORKSPACE/target/release/sorseal" verify
+          "$GITHUB_WORKSPACE/target/release/veriseal" verify
           echo "smoke ok"
 
   action:
@@ -93,21 +93,21 @@ jobs:
         run: |
           mkdir -p dogfood
           cp -r tests/fixtures/echo/. dogfood/
-          printf 'target/\nsorseal.provenance.json\nsorseal.sarif\n' > dogfood/.gitignore
+          printf 'target/\nveriseal.provenance.json\nveriseal.sarif\n' > dogfood/.gitignore
           cd dogfood
           git init -q
           git config user.email ci@example.com
-          git config user.name "Sorseal CI"
+          git config user.name "Veriseal CI"
           git add .
           git commit -q -m "seed dogfood fixture"
-          "$GITHUB_WORKSPACE/target/release/sorseal" record
-          test -f sorseal.provenance.json
+          "$GITHUB_WORKSPACE/target/release/veriseal" record
+          test -f veriseal.provenance.json
           echo "sealed fixture ready"
-      - name: Run the sorseal action (dogfood)
+      - name: Run the veriseal action (dogfood)
         uses: ./
         with:
           working-directory: dogfood
-          sarif-file: sorseal.sarif
+          sarif-file: veriseal.sarif
       - name: Verify SARIF was produced and is valid JSON
         run: |
-          python3 -c "import json; d=json.load(open('dogfood/sorseal.sarif')); assert d['version']=='2.1.0'; assert d['runs'][0]['results']==[], 'expected clean verify'; print('sarif ok:', d['runs'][0]['tool']['driver']['name'])"
+          python3 -c "import json; d=json.load(open('dogfood/veriseal.sarif')); assert d['version']=='2.1.0'; assert d['runs'][0]['results']==[], 'expected clean verify'; print('sarif ok:', d['runs'][0]['tool']['driver']['name'])"

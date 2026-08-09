@@ -1,8 +1,8 @@
-# sorseal — Product Requirements Document
+# veriseal — Product Requirements Document
 
 ## Problem statement
 
-Stellar Wave backends deploy Soroban contracts to testnet and mainnet. Once a
+Stellar teams deploy Soroban contracts to testnet and mainnet. Once a
 `.wasm` is on-chain, the only thing linking it to a repo is process: a README
 saying "this came from commit X". There is no automated, tamper-evident record
 that:
@@ -17,7 +17,7 @@ from what was audited.
 
 ## Audience
 
-Soroban contract teams on Stellar (Wave-funded and otherwise) who need a cheap,
+Soroban contract teams on Stellar who need a cheap,
 CI-friendly way to prove deployed bytecode matches source.
 
 ## Goals (Phase 1)
@@ -28,7 +28,7 @@ CI-friendly way to prove deployed bytecode matches source.
   exit non-zero on any drift so the check can gate CI/release.
 - **Report** — render the provenance as console, JSON, or Markdown for
   deliverables and audit trails.
-- **Zero dependency on sibling tools** — sorseal must make sense and function
+- **Zero dependency on sibling tools** — veriseal must make sense and function
   on its own for any Rust/Soroban project.
 
 ## Goals (Phase 2 — shipped)
@@ -56,14 +56,14 @@ CI-friendly way to prove deployed bytecode matches source.
 
 ## Success criteria
 
-1. `sorseal record` then `sorseal verify` (after wiping build output) exits 0.
+1. `veriseal record` then `veriseal verify` (after wiping build output) exits 0.
 2. Any source change, corrupted provenance, or moved-away git history fails
    `verify` with exit 1 and a clear message.
 3. `cargo fmt`, `cargo clippy -D warnings`, and `cargo test` all green in CI on
    stable and MSRV 1.85.
 4. The e2e fixture (`tests/fixtures/echo`) builds bit-reproducibly on CI.
-5. Standalone: `sorseal init` scaffolds a working manifest for a fresh project
-   with no input from other Wave tools.
+5. Standalone: `veriseal init` scaffolds a working manifest for a fresh project
+   with no input from other Stellar tooling.
 6. `keygen` → `sign` → `verify-attestation` round-trips; a tampered attestation
    or provenance fails verification.
 7. `onchain-verify` fetches and decodes a live contract instance and matches

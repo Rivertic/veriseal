@@ -3,15 +3,15 @@
 ## Reporting a Vulnerability
 
 **Do not open a public issue.** If you discover a security vulnerability in
-sorseal, please report it privately via GitHub's
-[Security Advisories](https://github.com/BreachDirect/sorseal/security/advisories)
+veriseal, please report it privately via GitHub's
+[Security Advisories](https://github.com/Authentick/veriseal/security/advisories)
 feature.
 
 Please include:
 
 - The affected version (commit, tag, or crate version)
 - A description of the vulnerability and its impact
-- Steps to reproduce (minimal `sorseal.toml` and fixture if applicable)
+- Steps to reproduce (minimal `veriseal.toml` and fixture if applicable)
 - Any suggested mitigation
 
 We aim to acknowledge reports within **48 hours** and to triage them within
@@ -26,7 +26,7 @@ We aim to acknowledge reports within **48 hours** and to triage them within
 
 ## Security Model
 
-sorseal is designed to be trustworthy even when the projects it inspects are
+veriseal is designed to be trustworthy even when the projects it inspects are
 hostile:
 
 - The core path is **offline** — hashing, sealing, and verification make no
@@ -40,7 +40,7 @@ hostile:
 - It does **not** use `unsafe`.
 - The dependency tree is deliberately small (`clap`, `serde`, `serde_json`,
   `toml`, `sha2`, `anyhow`) and is audited weekly in CI via
-  [`cargo audit`](https://github.com/BreachDirect/sorseal/actions/workflows/security.yml).
+  [`cargo audit`](https://github.com/Authentick/veriseal/actions/workflows/security.yml).
 
 ## Dependency Disclosures
 

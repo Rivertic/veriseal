@@ -4,7 +4,7 @@ use crate::runner::{Check, Outcome};
 use serde_json::{json, Value};
 
 pub const SCHEMA: &str = "https://json.schemastore.org/sarif-2.1.0.json";
-pub const INFORMATION_URI: &str = "https://github.com/BreachDirect/sorseal";
+pub const INFORMATION_URI: &str = "https://github.com/Authentick/veriseal";
 
 /// Render `verify` checks as a SARIF 2.1.0 report. Passed checks are omitted;
 /// failed checks become `error` results and errored checks `warning`, so a
@@ -20,14 +20,14 @@ pub fn render_sarif(project: &str, checks: &[Check]) -> String {
                 _ => "error",
             };
             json!({
-                "ruleId": "SORSEAL/verify",
+                "ruleId": "VERISEAL/verify",
                 "level": level,
                 "message": {
                     "text": format!("{} :: {} — {}", c.artifact, c.check, c.detail)
                 },
                 "locations": [{
                     "physicalLocation": {
-                        "artifactLocation": { "uri": "sorseal.provenance.json" },
+                        "artifactLocation": { "uri": "veriseal.provenance.json" },
                         "region": { "startLine": 1 }
                     }
                 }],
@@ -46,18 +46,18 @@ pub fn render_sarif(project: &str, checks: &[Check]) -> String {
         "runs": [{
             "tool": {
                 "driver": {
-                    "name": "sorseal",
-                    "fullName": "sorseal — provenance for Soroban/WASM artifacts",
+                    "name": "veriseal",
+                    "fullName": "veriseal — provenance for Soroban/WASM artifacts",
                     "informationUri": INFORMATION_URI,
                     "version": env!("CARGO_PKG_VERSION"),
                     "rules": [{
-                        "id": "SORSEAL/verify",
+                        "id": "VERISEAL/verify",
                         "name": "provenance-verify",
                         "shortDescription": {
                             "text": "Checks that rebuilt artifacts reproduce the sealed provenance record"
                         },
                         "fullDescription": {
-                            "text": format!("Verify results for {project}: rebuilt WASM and source digests must match the sealed sorseal provenance record. Any mismatch or error is reported as a finding.")
+                            "text": format!("Verify results for {project}: rebuilt WASM and source digests must match the sealed veriseal provenance record. Any mismatch or error is reported as a finding.")
                         },
                         "helpUri": format!("{INFORMATION_URI}#provenance-verify"),
                         "properties": {
@@ -109,7 +109,7 @@ mod tests {
         assert_eq!(results.len(), 2);
         assert_eq!(results[0]["level"], "error");
         assert_eq!(results[1]["level"], "warning");
-        assert_eq!(results[0]["ruleId"], "SORSEAL/verify");
+        assert_eq!(results[0]["ruleId"], "VERISEAL/verify");
         assert_eq!(
             v["runs"][0]["tool"]["driver"]["version"],
             env!("CARGO_PKG_VERSION")

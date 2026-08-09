@@ -210,7 +210,7 @@ pub fn verify(
                 check: "sealed".into(),
                 outcome: Outcome::Error,
                 detail: format!(
-                    "manifest artifact '{}' has no entry in the sealed provenance; run `sorseal record` to seal it",
+                    "manifest artifact '{}' has no entry in the sealed provenance; run `veriseal record` to seal it",
                     ma.id
                 ),
             });
@@ -223,7 +223,7 @@ pub fn verify(
                 artifact: art.id.clone(),
                 check: "manifest".into(),
                 outcome: Outcome::Error,
-                detail: "sealed artifact has no matching [[artifacts]] entry in sorseal.toml"
+                detail: "sealed artifact has no matching [[artifacts]] entry in veriseal.toml"
                     .into(),
             });
             continue;
@@ -238,7 +238,7 @@ pub fn verify(
                 check: "command".into(),
                 outcome: Outcome::Fail,
                 detail: format!(
-                    "manifest build_command '{}' no longer matches sealed command '{}'; re-run `sorseal record` to re-seal",
+                    "manifest build_command '{}' no longer matches sealed command '{}'; re-run `veriseal record` to re-seal",
                     ma.build_command, art.command
                 ),
             });

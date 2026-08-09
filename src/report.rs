@@ -5,7 +5,7 @@ use crate::runner::{short, Check, Outcome};
 
 /// Render the `verify` output in a pytest-style summary.
 pub fn render_verify(project: &str, checks: &[Check]) -> String {
-    let mut lines = vec![format!("Sorseal — {project} verify"), String::new()];
+    let mut lines = vec![format!("Veriseal — {project} verify"), String::new()];
     for c in checks {
         lines.push(format!(
             "{}  {} :: {} — {}",
@@ -31,7 +31,7 @@ pub fn render_verify(project: &str, checks: &[Check]) -> String {
 
 /// Render the sealed digests (used by `record` and `report --format console`).
 pub fn render_sealed(project: &str, p: &Provenance) -> String {
-    let mut lines = vec![format!("Sorseal — {project}"), String::new()];
+    let mut lines = vec![format!("Veriseal — {project}"), String::new()];
     for a in &p.artifacts {
         lines.push(format!(
             "sealed  {} :: wasm  sha256 {} ({} bytes)",
@@ -59,7 +59,7 @@ pub fn render_sealed(project: &str, p: &Provenance) -> String {
     lines.join("\n")
 }
 
-/// Markdown report for the Wave deliverable / audit trail.
+/// Markdown report for the release deliverable / audit trail.
 pub fn render_markdown(p: &Provenance) -> String {
     let mut out = String::new();
     out.push_str(&format!("# Provenance: {}\n\n", md_escape(&p.project)));
@@ -72,7 +72,7 @@ pub fn render_markdown(p: &Provenance) -> String {
     } else {
         out.push_str("- git commit: _not a git repository_\n");
     }
-    out.push_str("- format: `sorseal-provenance` v1\n");
+    out.push_str("- format: `veriseal-provenance` v1\n");
     out.push_str("\n| artifact | wasm sha256 | size | source sha256 |\n|---|---|---|---|\n");
     for a in &p.artifacts {
         out.push_str(&format!(

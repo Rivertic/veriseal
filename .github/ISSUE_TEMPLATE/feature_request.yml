@@ -1,5 +1,5 @@
 name: Feature request
-description: Propose a new feature or improvement for sorseal
+description: Propose a new feature or improvement for veriseal
 title: "[feat]: "
 labels: [enhancement]
 body:
@@ -18,7 +18,7 @@ body:
     id: proposal
     attributes:
       label: Proposed behaviour
-      description: What should sorseal do, and what would the user experience look like?
+      description: What should veriseal do, and what would the user experience look like?
     validations:
       required: true
   - type: textarea

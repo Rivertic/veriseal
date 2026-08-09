@@ -1,6 +1,6 @@
-# Contributing to sorseal
+# Contributing to veriseal
 
-Thank you for your interest in sorseal! We're building a provenance tool for
+Thank you for your interest in veriseal! We're building a provenance tool for
 Soroban contracts on Stellar and welcome contributors of **all skill levels** —
 from first-time open-source contributors to seasoned Rust engineers.
 
@@ -40,8 +40,8 @@ This project follows the [Contributor Covenant Code of Conduct](https://www.cont
 ### 1. Fork & Clone
 
 ```bash
-git clone https://github.com/BreachDirect/sorseal.git
-cd sorseal
+git clone https://github.com/Authentick/veriseal.git
+cd veriseal
 ```
 
 ### 2. Build & Test
@@ -161,7 +161,7 @@ cargo test --test e2e         # e2e only
 ### Opening the PR
 
 1. Push your branch to your fork.
-2. Open a PR against `BreachDirect/sorseal:main`.
+2. Open a PR against `Authentick/veriseal:main`.
 3. Fill in the PR template (summary, motivation / linked issue, testing performed).
 4. Request a review — maintainers aim to respond within **48 hours**.
 
@@ -210,7 +210,7 @@ commit; byte-level source equality is still enforced by the source digest.
 Please include:
 
 1. **Rust version**: `rustc --version`
-2. **Steps to reproduce** (minimal `sorseal.toml` + fixture)
+2. **Steps to reproduce** (minimal `veriseal.toml` + fixture)
 3. **Expected vs actual behaviour** (including exit code)
 4. **Relevant output** (console, JSON, or Markdown report)
 
@@ -239,5 +239,5 @@ Not sure where to start?
 - Harden error messages and exit-code documentation
 - Expand `ARCHITECTURE.md` with worked examples
 
-**Thank you for contributing to sorseal!** Every PR makes Stellar contract
+**Thank you for contributing to veriseal!** Every PR makes Stellar contract
 deployments more verifiable.

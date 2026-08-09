@@ -1,4 +1,4 @@
-# sorseal.toml — declares the artifacts sorseal will build, hash, and seal.
+# veriseal.toml — declares the artifacts veriseal will build, hash, and seal.
 # Fixture used by tests/e2e.rs and the CI smoke job.
 
 [project]

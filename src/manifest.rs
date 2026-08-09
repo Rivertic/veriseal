@@ -1,11 +1,11 @@
-//! `sorseal.toml` — declares which artifacts to build, hash, and seal.
+//! `veriseal.toml` — declares which artifacts to build, hash, and seal.
 
 use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-pub const MANIFEST_FILENAME: &str = "sorseal.toml";
+pub const MANIFEST_FILENAME: &str = "veriseal.toml";
 
 fn default_source_root() -> PathBuf {
     PathBuf::from(".")

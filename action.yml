@@ -1,9 +1,9 @@
-name: 'sorseal'
+name: 'veriseal'
 description: >-
   Prove that your Soroban/WASM contract artifacts match the sealed provenance
-  record. Runs `sorseal verify` in CI and can upload the results to GitHub
+  record. Runs `veriseal verify` in CI and can upload the results to GitHub
   code scanning as SARIF.
-author: BreachDirect
+author: Authentick
 branding:
   icon: 'shield'
   color: 'blue'
@@ -11,20 +11,20 @@ branding:
 inputs:
   working-directory:
     description: >-
-      Directory (relative to the repository root) that contains the sorseal
+      Directory (relative to the repository root) that contains the veriseal
       manifest and sealed provenance. Defaults to the repository root.
     required: false
     default: '.'
   manifest:
     description: >-
-      Path to the sorseal.toml manifest, relative to `working-directory`.
+      Path to the veriseal.toml manifest, relative to `working-directory`.
     required: false
-    default: 'sorseal.toml'
+    default: 'veriseal.toml'
   provenance:
     description: >-
-      Path to the sealed sorseal.provenance.json, relative to `working-directory`.
+      Path to the sealed veriseal.provenance.json, relative to `working-directory`.
     required: false
-    default: 'sorseal.provenance.json'
+    default: 'veriseal.provenance.json'
   sarif-file:
     description: >-
       Path to write the SARIF report (relative to `working-directory`). When
@@ -65,13 +65,13 @@ runs:
           rustup target add "$t"
         done
 
-    - name: Build sorseal from source
+    - name: Build veriseal from source
       shell: bash
       run: |
         cargo build --release --locked --manifest-path "${{ github.action_path }}/Cargo.toml"
-        mkdir -p "$RUNNER_TOOL_CACHE/sorseal"
-        cp "${{ github.action_path }}/target/release/sorseal" "$RUNNER_TOOL_CACHE/sorseal/sorseal"
-        echo "$RUNNER_TOOL_CACHE/sorseal" >> "$GITHUB_PATH"
+        mkdir -p "$RUNNER_TOOL_CACHE/veriseal"
+        cp "${{ github.action_path }}/target/release/veriseal" "$RUNNER_TOOL_CACHE/veriseal/veriseal"
+        echo "$RUNNER_TOOL_CACHE/veriseal" >> "$GITHUB_PATH"
 
     - name: Verify provenance
       id: verify
@@ -82,7 +82,7 @@ runs:
         if [ -n "${{ inputs.sarif-file }}" ]; then
           args+=(--sarif "${{ inputs.sarif-file }}")
         fi
-        if sorseal verify "${args[@]}"; then
+        if veriseal verify "${args[@]}"; then
           echo "passed=true" >> "$GITHUB_OUTPUT"
         else
           echo "passed=false" >> "$GITHUB_OUTPUT"

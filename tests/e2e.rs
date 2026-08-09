@@ -1,4 +1,4 @@
-//! End-to-end tests: drive the real `sorseal` binary against a copy of the
+//! End-to-end tests: drive the real `veriseal` binary against a copy of the
 //! `echo` fixture, exercising record -> verify as a user would.
 
 use std::fs;
@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
 fn bin() -> &'static str {
-    env!("CARGO_BIN_EXE_sorseal")
+    env!("CARGO_BIN_EXE_veriseal")
 }
 
 fn fixture() -> PathBuf {
@@ -44,7 +44,7 @@ fn run(dir: &Path, args: &[&str]) -> Output {
         .env_remove("CARGO_TARGET_DIR")
         .env_remove("CARGO_BUILD_TARGET_DIR")
         .output()
-        .expect("failed to run sorseal")
+        .expect("failed to run veriseal")
 }
 
 fn git(dir: &Path, args: &[&str]) -> Output {
@@ -66,7 +66,7 @@ fn stdout(output: &Output) -> String {
 }
 
 fn provenance(dir: &Path) -> serde_json::Value {
-    let path = dir.join("sorseal.provenance.json");
+    let path = dir.join("veriseal.provenance.json");
     let text = fs::read_to_string(&path).expect("provenance file should exist");
     serde_json::from_str(&text).expect("provenance should be valid JSON")
 }
@@ -80,7 +80,7 @@ fn record_then_verify_is_reproducible() {
     assert!(rec.status.success(), "record failed:\n{}", stdout(&rec));
 
     let prov = provenance(tmp.path());
-    assert_eq!(prov["format"], "sorseal-provenance");
+    assert_eq!(prov["format"], "veriseal-provenance");
     assert_eq!(prov["version"], 1);
     assert_eq!(prov["project"], "echo");
     let art = &prov["artifacts"][0];
@@ -126,7 +126,7 @@ fn verify_detects_corrupted_provenance() {
     copy_fixture(tmp.path());
     assert!(run(tmp.path(), &["record"]).status.success());
 
-    let prov_path = tmp.path().join("sorseal.provenance.json");
+    let prov_path = tmp.path().join("veriseal.provenance.json");
     let mut prov = provenance(tmp.path());
     prov["artifacts"][0]["wasm_sha256"] = "0".repeat(64).into();
     fs::write(&prov_path, prov.to_string()).unwrap();
@@ -151,7 +151,7 @@ fn keygen_sign_and_verify_attestation_roundtrip() {
     // sign the provenance into a DSSE attestation
     let sg = run(tmp.path(), &["sign", "--key", "test.key"]);
     assert!(sg.status.success(), "sign failed:\n{}", stdout(&sg));
-    assert!(tmp.path().join("sorseal.attestation.json").exists());
+    assert!(tmp.path().join("veriseal.attestation.json").exists());
 
     // verify the attestation against the public key and provenance
     let va = run(
@@ -168,7 +168,7 @@ fn keygen_sign_and_verify_attestation_roundtrip() {
     // tampering with the provenance must fail subject cross-check
     let mut prov = provenance(tmp.path());
     prov["artifacts"][0]["wasm_sha256"] = "0".repeat(64).into();
-    let prov_path = tmp.path().join("sorseal.provenance.json");
+    let prov_path = tmp.path().join("veriseal.provenance.json");
     fs::write(&prov_path, prov.to_string()).unwrap();
     let va2 = run(
         tmp.path(),
@@ -187,10 +187,10 @@ fn sign_then_verify_still_reproduces() {
     copy_fixture(tmp.path());
     assert!(run(tmp.path(), &["record"]).status.success());
     assert!(run(tmp.path(), &["keygen"]).status.success());
-    assert!(run(tmp.path(), &["sign", "--key", "sorseal.key"])
+    assert!(run(tmp.path(), &["sign", "--key", "veriseal.key"])
         .status
         .success());
-    assert!(tmp.path().join("sorseal.attestation.json").exists());
+    assert!(tmp.path().join("veriseal.attestation.json").exists());
 
     fs::remove_dir_all(tmp.path().join("target")).unwrap();
     let ver = run(tmp.path(), &["verify"]);
@@ -209,7 +209,7 @@ fn verify_detects_changed_build_command() {
 
     // Change the build command while keeping the produced wasm identical: the
     // sealed record no longer describes how the artifact is built.
-    let man_path = tmp.path().join("sorseal.toml");
+    let man_path = tmp.path().join("veriseal.toml");
     let man = fs::read_to_string(&man_path).unwrap();
     fs::write(
         &man_path,
@@ -238,7 +238,7 @@ fn verify_emits_valid_sarif() {
     // corrupt the provenance so verify produces a finding
     let mut prov = provenance(tmp.path());
     prov["artifacts"][0]["wasm_sha256"] = "0".repeat(64).into();
-    fs::write(tmp.path().join("sorseal.provenance.json"), prov.to_string()).unwrap();
+    fs::write(tmp.path().join("veriseal.provenance.json"), prov.to_string()).unwrap();
 
     let ver = run(tmp.path(), &["verify", "--sarif", "out.sarif"]);
     assert_eq!(ver.status.code(), Some(1));
@@ -260,7 +260,7 @@ fn init_writes_valid_manifest() {
     let tmp = tempfile::tempdir().unwrap();
     let rec = run(tmp.path(), &["init", "--project", "demo"]);
     assert!(rec.status.success(), "init failed:\n{}", stdout(&rec));
-    let text = fs::read_to_string(tmp.path().join("sorseal.toml")).unwrap();
+    let text = fs::read_to_string(tmp.path().join("veriseal.toml")).unwrap();
     assert!(text.contains("demo"));
     let parsed: toml::Table = text.parse().expect("init output must be valid TOML");
     assert_eq!(parsed["project"]["name"].as_str(), Some("demo"));
@@ -282,7 +282,7 @@ fn init_discovers_cdylib_crate_in_workspace() {
 
     let rec = run(tmp.path(), &["init"]);
     assert!(rec.status.success(), "init failed:\n{}", stdout(&rec));
-    let text = fs::read_to_string(tmp.path().join("sorseal.toml")).unwrap();
+    let text = fs::read_to_string(tmp.path().join("veriseal.toml")).unwrap();
     assert!(text.contains("echo"));
     assert!(text.contains("wasm32-unknown-unknown"));
 }
@@ -302,7 +302,7 @@ fn init_discovers_cdylib_with_glob_members() {
 
     let rec = run(tmp.path(), &["init"]);
     assert!(rec.status.success(), "init failed:\n{}", stdout(&rec));
-    let text = fs::read_to_string(tmp.path().join("sorseal.toml")).unwrap();
+    let text = fs::read_to_string(tmp.path().join("veriseal.toml")).unwrap();
     assert!(text.contains("echo"));
 }
 
@@ -314,7 +314,7 @@ fn git_flow_record_verify_and_dirty_refusal() {
 
     git(tmp.path(), &["init", "-q"]);
     git(tmp.path(), &["config", "user.email", "test@example.com"]);
-    git(tmp.path(), &["config", "user.name", "Sorseal Test"]);
+    git(tmp.path(), &["config", "user.name", "Veriseal Test"]);
     git(tmp.path(), &["add", "."]);
     git(tmp.path(), &["commit", "-q", "-m", "initial"]);
     let sealed_commit = git_out(tmp.path(), &["rev-parse", "HEAD"])
